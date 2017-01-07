@@ -30,6 +30,7 @@ Sheet.prototype.init = function(canvas) {
     return a.row - b.row;
   });
 
+  // some test widths
   this.colWidths.push({col: 1, width: 100});
   this.colWidths.push({col: 2, width: 100});
   this.colWidths.push({col: 3, width: 100});

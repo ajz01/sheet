@@ -8,6 +8,11 @@ var app = (function() {
          sheet = new Sheet.Sheet();
          sheet.init(sheetCanvas);
          sheet.isActive = true;
+         // add some test data
+         sheet.cells.push({row: 1, col: 1, contents: ['test']});
+         sheet.cells.push({row: 2, col: 1, contents: [1]});
+         sheet.cells.push({row: 3, col: 1, contents: [2]});
+         sheet.cells.push({row: 4, col: 1, contents: [3]});
          sheet.draw();
       },
 
