@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+   <meta charset="UTF-8"> 
+   <body onmousemove="app.mousemove(event)" onmouseup="app.mouseup(event)">
+      <canvas id="sheetCanvas" width="500" height="500"></canvas>
+   </body>
+   <script src="..\script\shape.js"></script>
+   <script src="..\script\sheet.js"></script>
+   <script src="..\script\app.js"></script>
+   <script>
+      var sheetCanvas = document.getElementById('sheetCanvas');
+      app.init(sheetCanvas);
+   </script>
+</html>
