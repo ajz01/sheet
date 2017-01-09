@@ -152,14 +152,16 @@ Sheet.prototype.draw = function() {
         var dx = shh.rx%this.cellWidth;
 
         var colPos = [];
+        var accumCols = 0;
         var accumWidth = 0;
         ctx.strokeStyle = "darkgray";
-        for(var i = 1; i < 25; i++) {
+        for(var i = -1; i < 25; i++) {
             var width = this.cellWidth;
-            var accumCols = 0;
-            accumWidth = 0;
+            
+            //accumWidth = 0;
+            var col = i + Math.floor(shh.rx/this.cellWidth) - 1;
             for(var j = 0; j < this.colWidths.length; j++) {
-               if(this.colWidths[j].col < i + Math.floor(shh.rx/this.cellWidth)) {
+               if(this.colWidths[j].col == col) {
                   accumWidth+=this.colWidths[j].width;
                   accumCols++;
                }
@@ -169,19 +171,22 @@ Sheet.prototype.draw = function() {
             ctx.lineTo(this.width - 10, i * this.cellHeight - dy);
             ctx.stroke();
             ctx.beginPath();
-            colPos[i] = (i - accumCols) * this.cellWidth - dx + accumWidth - shh.rx;
-            ctx.moveTo((i - accumCols) * this.cellWidth - dx + accumWidth - shh.rx, 0);
-            ctx.lineTo((i - accumCols) * this.cellWidth - dx + accumWidth - shh.rx, this.height - 10);
+            //colPos[i] = (i - accumCols) * this.cellWidth - dx + accumWidth - shh.rx;
+            ctx.moveTo((i - accumCols) * this.cellWidth - dx + accumWidth, 0);
+            ctx.lineTo((i - accumCols) * this.cellWidth - dx + accumWidth, this.height - 10);
             ctx.stroke();
             ctx.closePath();
         }
+
+        accumCols = 0;
+        accumWidth = 0;
 
         for(var i = 0; i < this.cells.length && (this.cells[i].row) * this.cellHeight - shv.ry + 18 < this.height - this.cellHeight/2; i++) {
           /*if((this.cells[i].col) * this.cellWidth - shh.rx + this.cellWidth/2 < this.width - this.cellWidth/2 && //(this.cells[i].row) * this.cellHeight - shv.ry + 18 < this.height - 10 &&
              (this.cells[i].col) * this.cellWidth - shh.rx + this.cellWidth/2 > this.cellWidth/2 && (this.cells[i].row) * this.cellHeight - shv.ry + 18 > this.cellHeight/2) {*/
             var width = this.cellWidth;
-            var accumCols = 0;
-            accumWidth = 0;
+            //var accumCols = 0;
+            //accumWidth = 0;
             for(var j = 0; j < this.colWidths.length; j++) {
                if(this.colWidths[j].col < this.cells[i].col) {
                   accumWidth+=this.colWidths[j].width;
@@ -224,13 +229,14 @@ Sheet.prototype.draw = function() {
           ctx.fillText(i + Math.floor(shv.ry/this.cellHeight), this.cellHeight, i * this.cellHeight - dy + 20);
         }
 
+        accumCols = 0;
         accumWidth = 0;
-        for(var i = 1; i < 20; i++) {
-            var accumCols = 0;
-            accumWidth = 0;
+
+        for(var i = -1; i < 25; i++) {
             var width = this.cellWidth;
+            var col = i + Math.floor(shh.rx/this.cellWidth) - 1;
             for(var j = 0; j < this.colWidths.length; j++) {
-               if(this.colWidths[j].col < i + Math.floor(shh.rx/this.cellWidth)) {
+               if(this.colWidths[j].col == col) {
                   accumWidth+=this.colWidths[j].width;
                   accumCols++;
                }
@@ -239,11 +245,11 @@ Sheet.prototype.draw = function() {
                }
           }
           ctx.fillStyle = 'lightgray'
-          ctx.fillRect((i - accumCols) * this.cellWidth - dx + accumWidth - shh.rx, 0, width, this.cellHeight/2);
+          ctx.fillRect((i - accumCols) * this.cellWidth - dx + accumWidth, 0, width, this.cellHeight/2);
           ctx.fillStyle = 'rgb(200,200,200)'
-          ctx.fillRect((i - accumCols) * this.cellWidth - dx + accumWidth - shh.rx, this.cellHeight/2, width, this.cellHeight/2);
+          ctx.fillRect((i - accumCols) * this.cellWidth - dx + accumWidth, this.cellHeight/2, width, this.cellHeight/2);
           ctx.strokeStyle = 'darkgray';
-          ctx.strokeRect((i - accumCols) * this.cellWidth - dx + accumWidth - shh.rx, 0, width, this.cellHeight);
+          ctx.strokeRect((i - accumCols) * this.cellWidth - dx + accumWidth, 0, width, this.cellHeight);
           ctx.fillStyle = 'rgb(120,120,120)';
           ctx.font = '12pt FreeSans';
           ctx.textAlign = 'center';
@@ -257,7 +263,7 @@ Sheet.prototype.draw = function() {
             label=String.fromCharCode(64 + p) + label;
             col=Math.floor(col/27);
           }
-          ctx.fillText(label, (i - accumCols) * this.cellWidth - dx + width/2 + accumWidth - shh.rx, 20);
+          ctx.fillText(label, (i - accumCols) * this.cellWidth - dx + accumWidth + width/2, 20);
         }
 
         ctx.fillStyle = 'lightgray';
@@ -301,10 +307,14 @@ function ScrollHandle(type, x, y, width, height) {
     this.y = y - height/2;
     this.ry = this.y;
     this.rx = this.x;
+    this.lastmx = 0;
     this.width = width;
     this.height = height;
+    this.originalWidth = width;
+    this.originalHeight = height;
     this.color = 'lightgray';
     this.velocity = 5;
+    this.originalVelocity = this.velocity;
     this.bar = null;
 }
 
@@ -332,7 +342,6 @@ ScrollHandle.prototype.draw = function() {
     ctx.stroke();
     ctx.restore();
   }
-  //Shape.prototype.draw.call(this);
 };
 
 ScrollHandle.prototype.move = function (mx, my) {
@@ -340,38 +349,65 @@ ScrollHandle.prototype.move = function (mx, my) {
     var ctx = this.canvas.getContext('2d');
 
     if(this.type == 'horizontal') {
-       if(mx < this.bar.width - this.width) {
-          var dx = mx - this.x;
-          this.rx += dx * this.velocity;
-          if(this.rx < 0)
-            this.rx = 0;
+       if(mx > this.x - this.width && mx < this.x + this.width + this.width) {
+       if(mx > this.lastmx) {
+          //var dx = mx - this.x;
+          this.rx += this.velocity;
+          //console.log(mx + " " + this.rx);
+       } else if(mx < this.lastmx && this.rx > 1) {
+         if(this.rx < 100)
+            this.velocity = this.originalVelocity;
+         this.rx -= this.velocity;
+         if(this.x < this.bar.width / 2)
+            if(this.width < this.originalWidth) {
+               this.width+=this.originalWidth/4;
+               //this.velocity /= 2;
+            }
        }
 
-       if(mx > this.bar.width - this.width)
-         mx -= this.bar.width - this.width;
+       this.lastmx = mx;
+   
+       if(mx + this.width > this.bar.width) {
+         this.x -= this.width;
+         if(this.width > this.originalWidth/4) {
+            this.width-=this.originalWidth/4;
+            this.velocity *= 2;
+         }
+       } else
+          if(mx > -1)
+             this.x = mx;
+       }
 
-       if(mx < 1 && this.rx > 1)
-         mx += this.bar.width - this.width;
-
-       if(mx > -1)
-          this.x = mx;
+       /*if(mx < 1 && this.rx > 1) {
+         mx = 0;//this.width;
+         if(this.width < this.originalWidth)
+            this.width+=this.originalWidth/4;
+       }*/
     }
 
     if(this.type == 'vertical') {
-       if(my < this.bar.height - this.height) {
+       if(my - this.height < this.bar.height) {
           var dy = my - this.y;
-          this.ry += dy * this.velocity;
+          this.ry += 20;//dy * this.velocity;
           if(this.ry < 0)
             this.ry = 0;
        }
 
-       if(my > this.bar.height - this.height) {
-         my -= this.bar.height - this.height;
+       
+
+       if(my + this.height > this.bar.height) {
+         my = this.bar.height - this.height;
+         if(this.height > this.originalHeight/4) {
+            this.height-=this.originalHeight/4;
+         }
          //this.velocity+=15;
        }
 
        if(my < 1 && this.ry > 1) {
-         my += this.bar.height - this.height;
+         my = 0;//this.bar.height - this.height;
+         if(this.height < this.originalHeight) {
+            this.height+=this.originalHeight/4;
+         }
          //this.velocity-=15;
        }
 
