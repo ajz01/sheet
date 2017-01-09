@@ -157,8 +157,6 @@ Sheet.prototype.draw = function() {
         ctx.strokeStyle = "darkgray";
         for(var i = -1; i < 25; i++) {
             var width = this.cellWidth;
-            
-            //accumWidth = 0;
             var col = i + Math.floor(shh.rx/this.cellWidth) - 1;
             for(var j = 0; j < this.colWidths.length; j++) {
                if(this.colWidths[j].col == col) {
@@ -171,7 +169,6 @@ Sheet.prototype.draw = function() {
             ctx.lineTo(this.width - 10, i * this.cellHeight - dy);
             ctx.stroke();
             ctx.beginPath();
-            //colPos[i] = (i - accumCols) * this.cellWidth - dx + accumWidth - shh.rx;
             ctx.moveTo((i - accumCols) * this.cellWidth - dx + accumWidth, 0);
             ctx.lineTo((i - accumCols) * this.cellWidth - dx + accumWidth, this.height - 10);
             ctx.stroke();
@@ -181,39 +178,37 @@ Sheet.prototype.draw = function() {
         accumCols = 0;
         accumWidth = 0;
 
-        for(var i = 0; i < this.cells.length && (this.cells[i].row) * this.cellHeight - shv.ry + 18 < this.height - this.cellHeight/2; i++) {
-          /*if((this.cells[i].col) * this.cellWidth - shh.rx + this.cellWidth/2 < this.width - this.cellWidth/2 && //(this.cells[i].row) * this.cellHeight - shv.ry + 18 < this.height - 10 &&
-             (this.cells[i].col) * this.cellWidth - shh.rx + this.cellWidth/2 > this.cellWidth/2 && (this.cells[i].row) * this.cellHeight - shv.ry + 18 > this.cellHeight/2) {*/
-            var width = this.cellWidth;
-            //var accumCols = 0;
-            //accumWidth = 0;
-            for(var j = 0; j < this.colWidths.length; j++) {
-               if(this.colWidths[j].col < this.cells[i].col) {
-                  accumWidth+=this.colWidths[j].width;
-                  accumCols++;
-               }
-               if(this.colWidths[j].col == this.cells[i].col) {
-                  width = this.colWidths[j].width;
-                  //accumWidth+=width-this.cellWidth;
-                  //break;
-               }
+        for(var i = 0; i < this.cells.length; i++) {
+            var colb = -1 + Math.floor(shh.rx/this.cellWidth) - 1;
+            var cole = 26 + Math.floor(shh.rx/this.cellWidth) - 1;
+            if(this.cells[i].col > colb && this.cells[i].col < cole) {
+               var width = this.cellWidth;
+               for(var j = 0; j < this.colWidths.length; j++) {
+                  if(this.colWidths[j].col < this.cells[i].col) {
+                     accumWidth+=this.colWidths[j].width;
+                     accumCols++;
+                  }
+                  if(this.colWidths[j].col == this.cells[i].col)
+                     width = this.colWidths[j].width;
+                }
+                ctx.fillStyle = 'black';
+                ctx.font = '8pt FreeSans';
+                ctx.textAlign = 'center';
+                var label = this.cells[i].contents[this.contentLevel].toString();
+                if(label.length > 10)
+                  label = label.substr(0, 10);
+                ctx.fillText(label, (this.cells[i].col - accumCols) * this.cellWidth - dx + accumWidth - shh.rx + width/2,
+                (this.cells[i].row) * this.cellHeight - shv.ry + 18, width);
              }
-             ctx.fillStyle = 'black';
-             ctx.font = '8pt FreeSans';
-             ctx.textAlign = 'center';
-             var label = this.cells[i].contents[this.contentLevel].toString();
-             if(label.length > 10)
-               label = label.substr(0, 10);
-             ctx.fillText(label, (this.cells[i].col - accumCols) * this.cellWidth - dx + accumWidth - shh.rx + width/2,
-             (this.cells[i].row) * this.cellHeight - shv.ry + 18, width);
         }
 
-        for(var i = 0; i < this.selectedCells.length && (this.selectedCells[i].row) * this.cellHeight - shv.ry + 18 < this.height - this.cellHeight/2; i++) {
-          if((this.selectedCells[i].col) * this.cellWidth - shh.rx + this.cellWidth/2 < this.width - this.cellWidth/2 && //(this.selectedCells[i].row) * this.cellHeight - shv.ry + 18 < this.height - this.cellHeight/2 &&
-             (this.selectedCells[i].col) * this.cellWidth - shh.rx + this.cellWidth/2 > this.cellWidth/2 && (this.selectedCells[i].row) * this.cellHeight - shv.ry + 18 > this.cellHeight/2) {
+        for(var i = 0; i < this.selectedCells.length; i++) {
+            var colb = -1 + Math.floor(shh.rx/this.cellWidth) - 1;
+            var cole = 26 + Math.floor(shh.rx/this.cellWidth) - 1;
+            if(this.cells[i].col > colb && this.cells[i].col < cole) {
              ctx.fillStyle = 'rgba(255,100,250,.70)';
-             ctx.fillRect((this.selectedCells[i].col - accumCols) * this.cellWidth - dx + accumWidth - shh.rx, (this.selectedCells[i].row) * this.cellHeight - shv.ry, width, this.cellHeight);//this.height/2+5);
-          }
+             ctx.fillRect((this.selectedCells[i].col - accumCols) * this.cellWidth - dx + accumWidth - shh.rx, (this.selectedCells[i].row) * this.cellHeight - shv.ry, width, this.cellHeight);
+            }
         }
 
         for(var i = 1; i < 25; i++) {
@@ -351,9 +346,7 @@ ScrollHandle.prototype.move = function (mx, my) {
     if(this.type == 'horizontal') {
        if(mx > this.x - this.width && mx < this.x + this.width + this.width) {
        if(mx > this.lastmx) {
-          //var dx = mx - this.x;
           this.rx += this.velocity;
-          //console.log(mx + " " + this.rx);
        } else if(mx < this.lastmx && this.rx > 1) {
          if(this.rx < 100)
             this.velocity = this.originalVelocity;
@@ -361,7 +354,6 @@ ScrollHandle.prototype.move = function (mx, my) {
          if(this.x < this.bar.width / 2)
             if(this.width < this.originalWidth) {
                this.width+=this.originalWidth/4;
-               //this.velocity /= 2;
             }
        }
 
@@ -377,12 +369,6 @@ ScrollHandle.prototype.move = function (mx, my) {
           if(mx > -1)
              this.x = mx;
        }
-
-       /*if(mx < 1 && this.rx > 1) {
-         mx = 0;//this.width;
-         if(this.width < this.originalWidth)
-            this.width+=this.originalWidth/4;
-       }*/
     }
 
     if(this.type == 'vertical') {
