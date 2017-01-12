@@ -303,6 +303,7 @@ function ScrollHandle(type, x, y, width, height) {
     this.ry = this.y;
     this.rx = this.x;
     this.lastmx = 0;
+    this.lastmy = 0;
     this.width = width;
     this.height = height;
     this.originalWidth = width;
@@ -341,10 +342,8 @@ ScrollHandle.prototype.draw = function() {
 
 ScrollHandle.prototype.move = function (mx, my) {
 
-    var ctx = this.canvas.getContext('2d');
-
     if(this.type == 'horizontal') {
-       if(mx > this.x - this.width && mx < this.x + this.width + this.width) {
+       if(mx > this.x - this.width && mx < this.x + this.width) {
        if(mx > this.lastmx) {
           this.rx += this.velocity;
        } else if(mx < this.lastmx && this.rx > 1) {
@@ -372,33 +371,44 @@ ScrollHandle.prototype.move = function (mx, my) {
     }
 
     if(this.type == 'vertical') {
-       if(my - this.height < this.bar.height) {
-          var dy = my - this.y;
-          this.ry += 20;//dy * this.velocity;
-          if(this.ry < 0)
-            this.ry = 0;
+       if(my > this.y - this.height && my < this.y + this.height) {
+          if(my > this.lastmy) {
+             this.ry += this.velocity;
+             var y = this.y;
+             this.y = my;
+
+             if(this.y + this.height > this.bar.height) {
+               this.y = y - this.height/2;
+               if(this.height > this.originalHeight/4) {
+                  this.height-=this.originalHeight/4;
+                  this.velocity *= 2;
+               }
+             }
+
+          } else if(my < this.lastmy && this.ry > 1) {
+            //if(this.ry < 50)
+            //   this.velocity = this.originalVelocity;
+            if(this.ry < this.velocity) {
+               this.ry = 0;
+               this.y = 0;
+               return;
+            } else
+               this.ry -= this.velocity;
+            var y = this.y;
+            this.y = my;
+
+            if(this.y < 0 && this.ry > 0)
+               this.y = y;
+
+            if(this.y + this.height < this.bar.height / 2)
+               if(this.height < this.originalHeight)
+                  this.height+=this.originalHeight/4;
+          }
+
+       this.lastmy = my;
+   
+
        }
-
-       
-
-       if(my + this.height > this.bar.height) {
-         my = this.bar.height - this.height;
-         if(this.height > this.originalHeight/4) {
-            this.height-=this.originalHeight/4;
-         }
-         //this.velocity+=15;
-       }
-
-       if(my < 1 && this.ry > 1) {
-         my = 0;//this.bar.height - this.height;
-         if(this.height < this.originalHeight) {
-            this.height+=this.originalHeight/4;
-         }
-         //this.velocity-=15;
-       }
-
-       if(my > -1)
-          this.y = my;
     }
 };
 
