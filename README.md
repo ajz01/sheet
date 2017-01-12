@@ -1,9 +1,9 @@
 # sheet
 An html canvas based grid designed to provide a simple spreadsheet style control.
 
-The goal is to provide a minimalistic high performance component that renders a simple read only view for spreadhseet data.
+The goal is to provide a minimalistic high performance component that renders a simple read only view of spreadhseet data.
 
-This will allow for the contents of a spreadsheet to be displayed on a webpage without the overhead and setup required when using a more flexible grid.
+This will allow a user to display a spreadsheet like view of data on a webpage without the overhead and setup required when using a more flexible grid.
 
 The control renders in the canvas so there is no DOM work being done and the view displays very quickly and is highly responsive irrespective of the amount of cell data added.
 
