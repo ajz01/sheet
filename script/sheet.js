@@ -334,8 +334,10 @@ Sheet.prototype.getSelectedCells = function() {
 function ScrollHandle(type, x, y, width, height) {
     Shape.call(this);
     this.type = type;
+    // on-screen coordinates
     this.x = x - width/2;
     this.y = y - height/2;
+    // real coordinates across entire plane
     this.ry = this.y;
     this.rx = this.x;
     this.lastmx = 0;
@@ -345,6 +347,7 @@ function ScrollHandle(type, x, y, width, height) {
     this.originalWidth = width;
     this.originalHeight = height;
     this.color = 'lightgray';
+    // variable scoll speed adjusts based on real coordiantes
     this.velocity = 5;
     this.originalVelocity = this.velocity;
     this.bar = null;
@@ -361,13 +364,9 @@ ScrollHandle.prototype.draw = function() {
     ctx.beginPath();
     ctx.moveTo(this.x+radius, this.y);
     ctx.arcTo(this.x+this.width, this.y, this.x+this.width, this.y+radius, radius);
-
     ctx.arcTo(this.x+this.width, this.y+this.height, this.x+this.width-radius, this.y+this.height, radius);
-
     ctx.arcTo(this.x, this.y+this.height, this.x, this.y+this.height-radius, radius);
-
     ctx.arcTo(this.x, this.y, this.x+radius, this.y, radius);
-
     ctx.fill();
     ctx.strokeStyle = 'rgb(235,235,235)';
     ctx.lineWidth = 2;
@@ -379,7 +378,6 @@ ScrollHandle.prototype.draw = function() {
 ScrollHandle.prototype.move = function (mx, my) {
 
     if(this.type == 'horizontal') {
-       if(mx > this.x - this.width && mx < this.x + this.width) {
        if(mx > this.lastmx) {
           this.rx += this.velocity;
        } else if(mx < this.lastmx && this.rx > 1) {
@@ -403,11 +401,9 @@ ScrollHandle.prototype.move = function (mx, my) {
        } else
           if(mx > -1)
              this.x = mx;
-       }
     }
 
     if(this.type == 'vertical') {
-       if(my > this.y - this.height && my < this.y + this.height) {
           if(my > this.lastmy) {
              this.ry += this.velocity;
              var y = this.y;
@@ -422,8 +418,6 @@ ScrollHandle.prototype.move = function (mx, my) {
              }
 
           } else if(my < this.lastmy && this.ry > 1) {
-            //if(this.ry < 50)
-            //   this.velocity = this.originalVelocity;
             if(this.ry < this.velocity) {
                this.ry = 0;
                this.y = 0;
@@ -442,9 +436,6 @@ ScrollHandle.prototype.move = function (mx, my) {
           }
 
        this.lastmy = my;
-   
-
-       }
     }
 };
 
@@ -491,44 +482,36 @@ ScrollBar.prototype.contains = function(mx, my) {
   if(hit) {
      if(this.type === 'vertical') {
         if(my < this.handle.y) {
-           this.handle.ry-=this.handle.velocity*100;
-           this.handle.y-=100;
+           if(this.handle.ry-this.handle.velocity*100 > 0) {
+              this.handle.ry-=this.handle.velocity*100;
+              this.handle.move(this.handle.x, my);
+           }
+           else {
+              this.handle.ry = 0;
+              this.handle.move(this.handle.x, 0);
+           }
         } else if(my > this.handle.y + this.handle.height) {
            this.handle.ry+=this.handle.velocity*100;
-           this.handle.y+=100;
+           this.handle.move(this.handle.x, my - this.handle.height);
         }
-
-       if(this.handle.y > this.height - this.handle.height)
-         this.handle.y -= this.height - this.handle.height;
-
-       if(this.handle.y < 1 && this.handle.ry > 1)
-         this.handle.y += this.height - this.handle.height;
-
-       if(this.handle.ry < 1) {
-          this.handle.ry = 1;
-          this.handle.y = 1;
-       }
      }
 
      if(this.type === 'horizontal') {
         if(mx < this.handle.x) {
-           this.handle.rx-=this.handle.velocity*100;
-           this.handle.x-=100;
+           if(this.handle.rx-this.handle.velocity*100 > 0) {
+              this.handle.rx-=this.handle.velocity*100;
+              this.handle.move(mx, this.handle.y);
+           } else {
+              this.handle.rx = 0;
+              this.handle.move(9, this.handle.y);
+           }
         } else if(mx > this.handle.x + this.handle.width) {
            this.handle.rx+=this.handle.velocity*100;
-           this.handle.x+=100;
+           this.handle.move(mx - this.handle.width, this.handle.y);
         }
 
-       if(this.handle.x > this.width - this.handle.width)
-         this.handle.x -= this.width - this.handle.width;
+        console.log(this.handle.x + ' ' + mx);
 
-       if(this.handle.x < 1 && this.handle.rx > 1)
-         this.handle.x += this.width - this.handle.width;
-
-       if(this.handle.rx < 1) {
-          this.handle.rx = 1;
-          this.handle.x = 1;
-       }
      }
 
      this.screen.draw();
