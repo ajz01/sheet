@@ -487,9 +487,6 @@ ScrollBar.prototype.contains = function(mx, my) {
            this.handle.rx+=this.handle.velocity*100;
            this.handle.move(mx - this.handle.width, this.handle.y);
         }
-
-        console.log(this.handle.x + ' ' + mx);
-
      }
 
      this.screen.draw();
