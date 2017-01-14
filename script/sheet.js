@@ -1,4 +1,40 @@
 var Sheet = (function() {
+   function Shape() {
+       this.x = 0;
+       this.y = 0;
+       this.width = 0;
+       this.height = 0;
+       this.color = 'rgba(15,20,255,0.8)';//'rgba(150,200,250,1)';
+       this.selected = false;
+       this.shapes = [];
+       this.cellLabelVisible = false;
+       this.mouseOver = false;
+       this.canvas = null;
+       this.hitFunctions = [];
+   }
+
+   Shape.prototype.init = function (canvas) {
+     this.canvas = canvas;
+   };
+
+   Shape.prototype.move = function (mx, my) {
+       var dx = mx - this.x;
+       var dy = my - this.y;
+       this.x = mx;
+       this.y = my;
+   };
+
+   Shape.prototype.contains = function(mx, my) {
+     return  (this.x <= mx) && (this.x + this.width >= mx) &&
+             (this.y <= my) && (this.y + this.height >= my);
+   };
+
+   Shape.prototype.hit = function(mx, my) {
+     for(var i = 0; i < this.hitFunctions.length; i++)
+         if(this.hitFunctions[i])
+            this.hitFunctions[i]();
+   };
+
 function Sheet () {
   this.canvas;
   this.shapes = [];
@@ -296,7 +332,7 @@ Sheet.prototype.getSelectedCells = function() {
 }
 
 function ScrollHandle(type, x, y, width, height) {
-    Shape.Shape.call(this);
+    Shape.call(this);
     this.type = type;
     this.x = x - width/2;
     this.y = y - height/2;
@@ -314,7 +350,7 @@ function ScrollHandle(type, x, y, width, height) {
     this.bar = null;
 }
 
-ScrollHandle.prototype = Object.create(Shape.Shape.prototype);
+ScrollHandle.prototype = Object.create(Shape.prototype);
 ScrollHandle.prototype.constructor = ScrollHandle;
 ScrollHandle.prototype.draw = function() {
   if (this.canvas.getContext) {
@@ -413,7 +449,7 @@ ScrollHandle.prototype.move = function (mx, my) {
 };
 
 function ScrollBar(type, width, height, handle, screen) {
-    Shape.Shape.call(this);
+    Shape.call(this);
     this.type = type;
     this.width = width; //20
     this.height = height; //20
@@ -423,10 +459,10 @@ function ScrollBar(type, width, height, handle, screen) {
     handle.bar = this;
 }
 
-ScrollBar.prototype = Object.create(Shape.Shape.prototype);
+ScrollBar.prototype = Object.create(Shape.prototype);
 ScrollBar.prototype.constructor = ScrollBar;
 ScrollBar.prototype.init = function(canvas) {
-    Shape.Shape.prototype.init.call(this, canvas);
+    Shape.prototype.init.call(this, canvas);
     if(this.type === 'vertical') {
        this.x = this.canvas.width - this.width;
        this.y = 0;
@@ -501,6 +537,7 @@ ScrollBar.prototype.contains = function(mx, my) {
   return hit;
 }
    return {
+      Shape: Shape,
       Sheet: Sheet,
       ScrollHandle: ScrollHandle,
       ScrollBar: ScrollBar
