@@ -376,9 +376,6 @@ var Sheet = (function() {
    };
 
    ScrollHandle.prototype.move = function (mx, my) {
-
-      console.log(this.velocity + ' ' + this.rx);
-
        if(this.type == 'horizontal') {
           if(mx + this.width < this.bar.width) {
              if(mx > this.lastmx) {
