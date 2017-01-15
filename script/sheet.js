@@ -4,7 +4,7 @@ var Sheet = (function() {
        this.y = 0;
        this.width = 0;
        this.height = 0;
-       this.color = 'rgba(15,20,255,0.8)';//'rgba(150,200,250,1)';
+       this.color = 'rgba(15,20,255,0.8)';
        this.selected = false;
        this.shapes = [];
        this.cellLabelVisible = false;
@@ -126,7 +126,7 @@ var Sheet = (function() {
      this.mousemove = function(event) {
       if(that.isActive) {
        var pos = getMousePos(canvas, event);
-       if(that.selectedShape !== null && that.mouseDown) {
+       if(that.selectedShape !== null && event.buttons == 1) {//that.mouseDown) {
          that.selectedShape.move(pos.x - that.dragxOffset, pos.y - that.dragyOffset);
          that.draw();
        }
@@ -377,21 +377,26 @@ var Sheet = (function() {
 
    ScrollHandle.prototype.move = function (mx, my) {
 
+      console.log(this.velocity + ' ' + this.rx);
+
        if(this.type == 'horizontal') {
           if(mx + this.width < this.bar.width) {
              if(mx > this.lastmx) {
                 this.rx += this.velocity;
-             } else if(mx < this.lastmx && this.rx > 1) {
-               if(this.rx < 100)
+             } else if(mx < this.lastmx) {
+               this.rx = Math.max(this.rx - this.velocity, 1);
+               if(this.rx < 500) {
                   this.velocity = this.originalVelocity;
-               this.rx -= this.velocity;
-               if(this.x < this.bar.width / 2)
-                  if(this.width < this.originalWidth)
-                     this.width+=this.originalWidth/4;
+                  this.width = Math.min(this.width+this.originalWidth/4, this.originalWidth);
+                  this.lastmx = mx;
+               }
              }
 
-             if(mx > -1)
-               this.x = mx;
+             this.x = Math.max(mx, 1);
+          } else if(this.x + this.width > this.bar.width - 5) {
+             this.x -= this.originalWidth;
+             this.velocity = Math.max(this.rx/10, this.originalVelocity);
+             this.width = Math.max(this.width-this.originalWidth/4, this.originalWidth/4);
           }
           this.lastmx = mx;
        }
@@ -400,19 +405,21 @@ var Sheet = (function() {
           if(my + this.height < this.bar.height) {
              if(my > this.lastmy) {
                 this.ry += this.velocity;
-             } else if(my < this.lastmy && this.ry > 1) {
-               if(this.ry < 100)
+             } else if(my < this.lastmy) {
+               this.ry = Math.max(this.ry - this.velocity, 1);
+               if(this.ry < 500) {
                   this.velocity = this.originalVelocity;
-               this.ry -= this.velocity;
-               if(this.y < this.bar.height / 2)
-                  if(this.height < this.originalHeight)
-                     this.height+=this.originalHeight/4;
+                  this.height = Math.min(this.height+this.originalHeight/4, this.originalHeight);
+                  this.lastmy = my;
+               }
              }
 
-             if(my > -1)
-               this.y = my;
+             this.y = Math.max(my, 1);
+          } else if(this.y + this.height > this.bar.height - 5) {
+             this.y -= this.originalHeight;
+             this.velocity = Math.max(this.ry/10, this.originalVelocity);
+             this.height = Math.max(this.height-this.originalHeight/4, this.originalHeight/4);
           }
-
           this.lastmy = my;
        }
    };
