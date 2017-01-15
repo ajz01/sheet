@@ -342,13 +342,14 @@ var Sheet = (function() {
        this.rx = this.x;
        this.lastmx = 0;
        this.lastmy = 0;
+       this.frame = 0;
        this.width = width;
        this.height = height;
        this.originalWidth = width;
        this.originalHeight = height;
        this.color = 'lightgray';
        // variable scoll speed adjusts based on real coordiantes
-       this.velocity = 5;
+       this.velocity = 15;
        this.originalVelocity = this.velocity;
        this.bar = null;
    }
@@ -378,22 +379,29 @@ var Sheet = (function() {
    ScrollHandle.prototype.move = function (mx, my) {
        if(this.type == 'horizontal') {
           if(mx + this.width < this.bar.width) {
+             this.velocity = Math.max(this.rx/100, this.originalVelocity);
              if(mx > this.lastmx) {
                 this.rx += this.velocity;
+                this.x = Math.max(mx, 1);
              } else if(mx < this.lastmx) {
                this.rx = Math.max(this.rx - this.velocity, 1);
-               if(this.rx < 500) {
-                  this.velocity = this.originalVelocity;
+               this.x = Math.max(mx, 1);
+               if(this.x < this.bar.width/2 && this.rx > 500) {
+                  //this.velocity = this.originalVelocity;
+                  this.x += this.width;
                   this.width = Math.min(this.width+this.originalWidth/4, this.originalWidth);
                   this.lastmx = mx;
+                  this.frame--;
+                  return;
                }
              }
 
-             this.x = Math.max(mx, 1);
+             
           } else if(this.x + this.width > this.bar.width - 5) {
              this.x -= this.originalWidth;
-             this.velocity = Math.max(this.rx/10, this.originalVelocity);
+             //this.velocity = Math.max(this.rx/100, this.originalVelocity);
              this.width = Math.max(this.width-this.originalWidth/4, this.originalWidth/4);
+             this.frame++;
           }
           this.lastmx = mx;
        }
@@ -424,8 +432,8 @@ var Sheet = (function() {
    function ScrollBar(type, width, height, handle, screen) {
        Shape.call(this);
        this.type = type;
-       this.width = width; //20
-       this.height = height; //20
+       this.width = width;
+       this.height = height;
        this.color = 'rgb(140,140,140)';
        this.handle = handle;
        this.screen = screen;
