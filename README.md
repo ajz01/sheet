@@ -12,3 +12,5 @@ The aim is not to create a general purpose grid, but to provide a view that look
 The view simply renders columns labeled with letters and rows labeled with numbers just like a spreadsheet and the user can add cell records using a simple JSON object that lists the column and row address of the content.
 
 ![image](Screenshot.png?raw=true)
+
+[Project Demo link](https://ajz01.github.io/sheet/index.html)
