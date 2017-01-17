@@ -9,4 +9,4 @@ The view simply renders columns labeled with letters and rows labeled with numbe
 
 ![image](Screenshot.png?raw=true)
 
-[Project Demo link](https://ajz01.github.io/sheet/index.html)
+[Project Demo link](https://ajz01.github.io/sheet/html/index.html)
