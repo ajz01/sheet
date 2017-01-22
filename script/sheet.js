@@ -244,20 +244,20 @@ var Sheet = (function() {
 
            for(var i = 0; i < this.selectedCells.length; i++) {
                var colb = -1 + Math.floor(shh.rx/this.cellWidth) - 1;
-               var cole = 26 + Math.floor(shh.rx/this.cellWidth) - 1;
-               if(this.selectedCells[i].col > colb && this.selectedCells[i].col < cole) {
+               //var cole = 26 + Math.floor(shh.rx/this.cellWidth) - 1;
+               //if(this.selectedCells[i].col > colb) { // && this.selectedCells[i].col < cole) {
                   accumCols = 0;
                   accumWidth = 0;
                   for(var j = 0; j < this.colWidths.length; j++) {
-                     if(this.colWidths[j].col < this.selectedCells[i].col && this.colWidths[j].col > colb && this.colWidths[j].col < cole) {
+                     if(this.colWidths[j].col < this.selectedCells[i].col && this.colWidths[j].col >= colb) { // && this.colWidths[j].col < cole) {
                         accumWidth+=this.colWidths[j].width;
                         accumCols++;
                      }
                    }
                 ctx.fillStyle = 'rgba(255,100,250,.70)';
-                console.log(this.selectedCells[i].col + ' ' + accumCols);
+                console.log(this.selectedCells[i].col + ' ' + accumCols + ' ' + accumWidth);
                 ctx.fillRect((this.selectedCells[i].col - accumCols) * this.cellWidth + accumWidth - shh.rx, (this.selectedCells[i].row) * this.cellHeight - shv.ry, width, this.cellHeight);
-               }
+               //}
            }
 
            for(var i = 1; i < 25; i++) {

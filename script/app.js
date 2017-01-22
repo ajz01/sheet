@@ -13,6 +13,9 @@ var app = (function() {
          sheet.cells.push({row: 2, col: 1, contents: [1]});
          sheet.cells.push({row: 3, col: 1, contents: [2]});
          sheet.cells.push({row: 4, col: 1, contents: [3]});
+         sheet.cells.push({row: 4, col: 2, contents: ['abcd']});
+         sheet.cells.push({row: 4, col: 3, contents: ['efgh']});
+         sheet.cells.push({row: 4, col: 4, contents: ['45678']});
          sheet.draw();
       },
 
