@@ -74,6 +74,11 @@ var Sheet = (function() {
      this.colWidths.push({col: 5, width: 100});
      this.colWidths.push({col: 6, width: 100});
 
+     this.selectedCells.push({row: 1, col: 1});
+     this.selectedCells.push({row: 2, col: 2});
+     this.selectedCells.push({row: 3, col: 3});
+     this.selectedCells.push({row: 4, col: 4});
+
      this.width = canvas.width;
      this.height = canvas.height;
 
@@ -211,13 +216,12 @@ var Sheet = (function() {
                ctx.closePath();
            }
 
-           accumCols = 0;
-           accumWidth = 0;
-
            for(var i = 0; i < this.cells.length; i++) {
                var colb = -1 + Math.floor(shh.rx/this.cellWidth) - 1;
                var cole = 26 + Math.floor(shh.rx/this.cellWidth) - 1;
                if(this.cells[i].col > colb && this.cells[i].col < cole) {
+                  accumCols = 0;
+                  accumWidth = 0;
                   var width = this.cellWidth;
                   for(var j = 0; j < this.colWidths.length; j++) {
                      if(this.colWidths[j].col < this.cells[i].col) {
@@ -241,9 +245,18 @@ var Sheet = (function() {
            for(var i = 0; i < this.selectedCells.length; i++) {
                var colb = -1 + Math.floor(shh.rx/this.cellWidth) - 1;
                var cole = 26 + Math.floor(shh.rx/this.cellWidth) - 1;
-               if(this.cells[i].col > colb && this.cells[i].col < cole) {
+               if(this.selectedCells[i].col > colb && this.selectedCells[i].col < cole) {
+                  accumCols = 0;
+                  accumWidth = 0;
+                  for(var j = 0; j < this.colWidths.length; j++) {
+                     if(this.colWidths[j].col < this.selectedCells[i].col && this.colWidths[j].col > colb && this.colWidths[j].col < cole) {
+                        accumWidth+=this.colWidths[j].width;
+                        accumCols++;
+                     }
+                   }
                 ctx.fillStyle = 'rgba(255,100,250,.70)';
-                ctx.fillRect((this.selectedCells[i].col - accumCols) * this.cellWidth - dx + accumWidth - shh.rx, (this.selectedCells[i].row) * this.cellHeight - shv.ry, width, this.cellHeight);
+                console.log(this.selectedCells[i].col + ' ' + accumCols);
+                ctx.fillRect((this.selectedCells[i].col - accumCols) * this.cellWidth + accumWidth - shh.rx, (this.selectedCells[i].row) * this.cellHeight - shv.ry, width, this.cellHeight);
                }
            }
 
@@ -386,6 +399,8 @@ var Sheet = (function() {
              } else if(mx < this.lastmx) {
                this.rx = Math.max(this.rx - this.velocity, 1);
                this.x = Math.max(mx, 1);
+               if(this.x < 2 && this.rx > 1)
+                  this.x += this.width;
                if(this.x < this.bar.width/2 && this.rx > 500) {
                   //this.velocity = this.originalVelocity;
                   this.x += this.width;
