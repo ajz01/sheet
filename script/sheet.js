@@ -220,8 +220,8 @@ var Sheet = (function() {
 
            for(var i = 0; i < this.cells.length; i++) {
                var colb = -1 + Math.floor(shh.rx/this.cellWidth) - 1;
-               //var cole = 26 + Math.floor(shh.rx/this.cellWidth) - 1;
-               //if(this.cells[i].col > colb && this.cells[i].col < cole) {
+               var cole = 26 + Math.floor(shh.rx/this.cellWidth) - 1;
+               if(this.cells[i].col > colb && this.cells[i].col < cole) {
                   accumCols = 0;
                   accumWidth = 0;
                   var width = this.cellWidth;
@@ -241,18 +241,18 @@ var Sheet = (function() {
                      label = label.substr(0, 10);
                    ctx.fillText(label, (this.cells[i].col - accumCols) * this.cellWidth + accumWidth - shh.rx + width/2,
                    (this.cells[i].row) * this.cellHeight - shv.ry + 18, width);
-                //}
+                }
            }
 
            for(var i = 0; i < this.selectedCells.length; i++) {
                var colb = -1 + Math.floor(shh.rx/this.cellWidth) - 1;
-               //var cole = 26 + Math.floor(shh.rx/this.cellWidth) - 1;
-               //if(this.selectedCells[i].col > colb) { // && this.selectedCells[i].col < cole) {
+               var cole = 26 + Math.floor(shh.rx/this.cellWidth) - 1;
+               if(this.selectedCells[i].col > colb && this.selectedCells[i].col < cole) {
                   accumCols = 0;
                   accumWidth = 0;
                   var width = this.cellWidth;
                   for(var j = 0; j < this.colWidths.length; j++) {
-                     if(this.colWidths[j].col < this.selectedCells[i].col && this.colWidths[j].col >= colb) { // && this.colWidths[j].col < cole) {
+                     if(this.colWidths[j].col < this.selectedCells[i].col && this.colWidths[j].col >= colb) {
                         accumWidth+=this.colWidths[j].width;
                         accumCols++;
                      }
@@ -262,7 +262,7 @@ var Sheet = (function() {
                 ctx.fillStyle = 'rgba(255,100,250,.70)';
                 console.log(this.selectedCells[i].col + ' ' + accumCols + ' ' + accumWidth);
                 ctx.fillRect((this.selectedCells[i].col - accumCols) * this.cellWidth + accumWidth - shh.rx, (this.selectedCells[i].row) * this.cellHeight - shv.ry, width, this.cellHeight);
-               //}
+               }
            }
 
            for(var i = 1; i < 25; i++) {
