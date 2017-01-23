@@ -78,6 +78,8 @@ var Sheet = (function() {
      this.selectedCells.push({row: 2, col: 2});
      this.selectedCells.push({row: 3, col: 3});
      this.selectedCells.push({row: 4, col: 4});
+     this.selectedCells.push({row: 4, col: 9});
+     this.selectedCells.push({row: 8, col: 4});
 
      this.width = canvas.width;
      this.height = canvas.height;
@@ -248,11 +250,14 @@ var Sheet = (function() {
                //if(this.selectedCells[i].col > colb) { // && this.selectedCells[i].col < cole) {
                   accumCols = 0;
                   accumWidth = 0;
+                  var width = this.cellWidth;
                   for(var j = 0; j < this.colWidths.length; j++) {
                      if(this.colWidths[j].col < this.selectedCells[i].col && this.colWidths[j].col >= colb) { // && this.colWidths[j].col < cole) {
                         accumWidth+=this.colWidths[j].width;
                         accumCols++;
                      }
+                     if(this.colWidths[j].col == this.selectedCells[i].col)
+                        width = this.colWidths[j].width;
                    }
                 ctx.fillStyle = 'rgba(255,100,250,.70)';
                 console.log(this.selectedCells[i].col + ' ' + accumCols + ' ' + accumWidth);
