@@ -260,7 +260,7 @@ var Sheet = (function() {
                         width = this.colWidths[j].width;
                    }
                 ctx.fillStyle = 'rgba(255,100,250,.70)';
-                console.log(this.selectedCells[i].col + ' ' + accumCols + ' ' + accumWidth);
+                //console.log(this.selectedCells[i].col + ' ' + accumCols + ' ' + accumWidth);
                 ctx.fillRect((this.selectedCells[i].col - accumCols) * this.cellWidth + accumWidth - shh.rx, (this.selectedCells[i].row) * this.cellHeight - shv.ry, width, this.cellHeight);
                }
            }
