@@ -41,6 +41,7 @@ var Sheet = (function() {
      this.cells = [];
      this.selectedCells = [];
      this.colWidths = [];
+     this.colHeaders = [];
      this.selectedShape = null;
      this.dragxOffset = 0;
      this.dragyOffset = 0;
@@ -115,6 +116,26 @@ var Sheet = (function() {
            that.dragxOffset = pos.x - that.shapes[i].x;
            that.dragyOffset = pos.y - that.shapes[i].y;
          }
+       }
+       //console.log(pos.x + ' ' + pos.y);
+       for(var i = 0; i < that.colHeaders.length; i++) {
+         if(pos.x > that.colHeaders[i].x - 3 && pos.x < that.colHeaders[i].x + 3
+            && pos.y > 0 && pos.y < that.cellHeight) {
+               console.log(that.colHeaders[i].col);
+               for(var j = 0; j < that.colWidths.length; j++)
+                  if(that.colWidths[j].col === that.colHeaders[i].col) {
+                     if(that.colWidths[j].width < 400)
+                        that.colWidths[j].width*=2;
+                     else
+                        that.colWidths[j].width = 50;
+                     break;
+                  }
+
+               if(j === that.colWidths.length)
+                  that.colWidths.push({col: that.colHeaders[i].col, width: 100});
+
+               that.draw();
+            }
        }
       }
      });
@@ -198,6 +219,7 @@ var Sheet = (function() {
            var accumCols = 0;
            var accumWidth = 0;
            ctx.strokeStyle = "darkgray";
+           this.colHeaders = [];
            for(var i = -1; i < 25; i++) {
                var width = this.cellWidth;
                var col = i + Math.floor(shh.rx/this.cellWidth) - 1;
@@ -214,6 +236,7 @@ var Sheet = (function() {
                ctx.beginPath();
                ctx.moveTo((i - accumCols) * this.cellWidth - dx + accumWidth, 0);
                ctx.lineTo((i - accumCols) * this.cellWidth - dx + accumWidth, this.height - 10);
+               this.colHeaders.push({x: (i - accumCols) * this.cellWidth - dx + accumWidth, col: col});
                ctx.stroke();
                ctx.closePath();
            }
